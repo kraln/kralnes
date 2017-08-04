@@ -1,0 +1,8 @@
+[package]
+name = "kralnes"
+version = "0.1.0"
+authors = ["Jeff Katz <kraln@kraln.com>"]
+
+[dependencies]
+portaudio = "0.7.0"
+sciter-rs = "0.4.20"
