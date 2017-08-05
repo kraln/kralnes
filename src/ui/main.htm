@@ -1,0 +1,56 @@
+
+<html>
+  <head>
+    <title>kraln nes emulator</title>
+    <style>
+      html {
+        background: #fff;
+        color:#000;
+      }
+      html:rtl {
+        mapping: left-to-right(background);
+      }
+      body {
+        context-menu: selector(menu#mainmenu);
+      }
+      .hidden { display: none; }
+    </style>
+    <script type="text/tiscript">
+      view.caption = $(head > title).value;
+     
+      // context menu handler
+      $(body).on("click", "menu > li", function(evt) {
+        var menu_item = evt.target;
+        var owner = evt.owner;
+
+        // file open
+        if (menu_item == $(li#file-open)) 
+        {
+          var fn = view.selectFile(#file-open, "NES Roms (*.nes,*.rom,*.bin)|*.nes;*.bin;*.rom", "nes");
+          stdout.println("selected file: " + fn);
+        }
+
+        // debug
+        if (menu_item == $(li#debug-toggle))
+        {
+          $(widget#debug).attributes.toggleClass("hidden");
+        }
+      });
+
+    </script>
+  </head>
+<body>
+  <menu.context id="mainmenu">
+    <caption>Main Menu</caption>
+    <li id="file-open">Open rom...</li>
+    <li>Debugging
+    <menu>
+      <caption>Debugging stuff</caption>
+      <li id="debug-toggle">Toggle debug</li>
+    </menu>
+    </li>
+  </menu>
+  <widget #main>main</widget>
+  <widget #debug class="hidden">debug</widget>
+</body>
+</html>
