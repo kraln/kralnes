@@ -23,7 +23,10 @@
     </style>
     <script type="text/tiscript">
       view.caption = $(head > title).value;
-      view.paused = true;
+      view.paused = false;
+
+      view.ptick = System.ticks;
+      view.tdeltas = [1];
 
       // context menu handler
       $(body).on("click", "menu > li", function(evt) {
@@ -31,7 +34,7 @@
         var owner = evt.owner;
 
         // file open
-        if (menu_item == $(li#file-open)) 
+        if (menu_item == $(li#file-open))
         {
           var fn = view.selectFile(#file-open, "NES Roms (*.nes,*.rom,*.bin)|*.nes;*.bin;*.rom", "nes");
           stdout.println("selected file: " + fn);
@@ -58,8 +61,9 @@
         {
           gfx.drawImage(view.current_image, 0, 0);
         }
+
         return true;
-      } 
+      }
       $(#main).paintBackground = draw_image;
 
       // main ticker
@@ -67,6 +71,17 @@
       {
         view.gfx_buffer = view.get_gfx_buffer();
         view.current_image = Image.fromBytes(view.gfx_buffer);
+        $(#main).refresh();
+
+        var tick = System.ticks;
+        view.tdeltas.push( tick - view.ptick );
+        if( view.tdeltas.length > 10 )
+        {
+          view.tdeltas.shift();
+        }
+        view.ptick = tick;
+        var avdelta = view.tdeltas.reduce(:a,b: a + b) / view.tdeltas.length;
+        view.tps = "TPS:" + (1000 / avdelta).toString();
         return view.paused;
       }
     </script>
@@ -84,6 +99,6 @@
     </li>
   </menu>
   <widget #main><div id="draw_main"/></widget>
-  <widget #debug class="hidden">debug</widget>
+  <widget #debug><caption>debug</caption><div #log></div></widget>
 </body>
 </html>
