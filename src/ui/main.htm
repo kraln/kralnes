@@ -1,4 +1,3 @@
-
 <html>
   <head>
     <title>kraln nes emulator</title>
@@ -13,11 +12,19 @@
       body {
         context-menu: selector(menu#mainmenu);
       }
+
+      #draw_main {
+        width: 256px;
+        height: 240px;
+        border: 1px solid black;
+      }
+
       .hidden { display: none; }
     </style>
     <script type="text/tiscript">
       view.caption = $(head > title).value;
-     
+      view.paused = true;
+
       // context menu handler
       $(body).on("click", "menu > li", function(evt) {
         var menu_item = evt.target;
@@ -30,6 +37,14 @@
           stdout.println("selected file: " + fn);
         }
 
+        // run/stop
+        if (menu_item == $(li#play-pause))
+        {
+          view.paused = !(view.paused);
+
+          $(div#draw_main).animate(tick);
+        }
+
         // debug
         if (menu_item == $(li#debug-toggle))
         {
@@ -37,12 +52,30 @@
         }
       });
 
+      function draw_image(gfx)
+      {
+        if (view.current_image != undefined)
+        {
+          gfx.drawImage(view.current_image, 0, 0);
+        }
+        return true;
+      } 
+      $(#main).paintBackground = draw_image;
+
+      // main ticker
+      function tick()
+      {
+        view.gfx_buffer = view.get_gfx_buffer();
+        view.current_image = Image.fromBytes(view.gfx_buffer);
+        return view.paused;
+      }
     </script>
   </head>
 <body>
   <menu.context id="mainmenu">
     <caption>Main Menu</caption>
     <li id="file-open">Open rom...</li>
+    <li id="play-pause">Play / Pause</li>
     <li>Debugging
     <menu>
       <caption>Debugging stuff</caption>
@@ -50,7 +83,7 @@
     </menu>
     </li>
   </menu>
-  <widget #main>main</widget>
+  <widget #main><div id="draw_main"/></widget>
   <widget #debug class="hidden">debug</widget>
 </body>
 </html>
